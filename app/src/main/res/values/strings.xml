@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">GroceryListing</string>
+    <string name="editTitleRecipeLabel">Название рецепта</string>
+    <string name="editRecipeImageLabel">Изображение</string>
+    <string name="editRecipeInstrLabel">Инструкция</string>
+    <string name="editRecipeIngrLabel">Ингридиенты</string>
+    <string name="editIngredient">Ингридиент</string>
+    <string name="editAuthorRecipeLabel">Автор рецепта</string>
+    <string name="editUom">Кол-во</string>
+    <string name="add">+</string>
+
 </resources>

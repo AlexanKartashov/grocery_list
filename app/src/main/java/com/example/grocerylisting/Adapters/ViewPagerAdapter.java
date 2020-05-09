@@ -1,4 +1,4 @@
-package com.example.grocerylisting;
+package com.example.grocerylisting.Adapters;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
