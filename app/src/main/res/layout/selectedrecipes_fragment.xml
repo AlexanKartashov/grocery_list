@@ -6,13 +6,13 @@
     android:id="@+id/selectedrecipes_fragment"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorLight">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Select Recipes here"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/selected_recipes_list"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_marginTop="100dp" />
 
 </LinearLayout>

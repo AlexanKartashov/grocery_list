@@ -7,6 +7,9 @@ public class IngrAndUom {
     String ingredient;
     String uom;
 
+    public IngrAndUom() {
+    }
+
     public IngrAndUom(String ingredient, String uom) {
         this.ingredient = ingredient;
         this.uom = uom;

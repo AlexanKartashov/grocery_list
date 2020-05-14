@@ -6,6 +6,9 @@ public class RecipeWithIngr {
     String ingrKey;
     String uomKey;
 
+    public RecipeWithIngr() {
+    }
+
     public RecipeWithIngr(String recipeKey, String ingrKey, String uomKey) {
         this.recipeKey = recipeKey;
         this.ingrKey = ingrKey;

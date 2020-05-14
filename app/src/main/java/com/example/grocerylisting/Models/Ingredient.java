@@ -5,6 +5,9 @@ public class Ingredient {
     String ingrName;
     String ingrKey;
 
+    public Ingredient() {
+    }
+
     public Ingredient(String ingrName) {
         this.ingrName = ingrName;
     }

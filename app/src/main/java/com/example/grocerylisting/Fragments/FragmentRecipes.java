@@ -119,8 +119,6 @@ public class FragmentRecipes extends Fragment {
     public void onStart() {
         super.onStart();
 
-        // Get list
-
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -243,6 +241,7 @@ public class FragmentRecipes extends Fragment {
                                             public void onSuccess(Void aVoid) {
                                                 Toast.makeText(getActivity(), "Рецепт добавлен успешно", Toast.LENGTH_LONG).show();
                                                 addRecipeBtn.setVisibility(View.VISIBLE);
+                                                addRecipeBtn.bringToFront();
                                                 addClickProgress.setVisibility(View.INVISIBLE);
                                                 popupAddRecipe.dismiss();
                                             }

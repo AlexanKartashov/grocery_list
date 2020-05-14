@@ -1,6 +1,7 @@
 package com.example.grocerylisting.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.grocerylisting.Activities.RecipeDetailActivity;
 import com.example.grocerylisting.Models.Recipe;
 import com.example.grocerylisting.R;
 
@@ -57,6 +59,21 @@ public class RecipeInListAdapter  extends RecyclerView.Adapter<RecipeInListAdapt
             recTitle = itemView.findViewById(R.id.recipeTitleInList);
             recAuthor = itemView.findViewById(R.id.authorInList);
             recImage = itemView.findViewById(R.id.recipeImageInList);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent recipeDetailActivity = new Intent(context, RecipeDetailActivity.class);
+                    int position = getAdapterPosition();
+
+                    recipeDetailActivity.putExtra("title",data.get(position).getTile());
+                    recipeDetailActivity.putExtra("author",data.get(position).getAuthor());
+                    recipeDetailActivity.putExtra("instruction",data.get(position).getInstruction());
+                    recipeDetailActivity.putExtra("recipeImage",data.get(position).getPicture());
+                    recipeDetailActivity.putExtra("recipeKey",data.get(position).getKey());
+                    context.startActivity(recipeDetailActivity);
+                }
+            });
         }
     }
 }

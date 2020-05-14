@@ -10,14 +10,23 @@ import com.example.grocerylisting.Models.Uom;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class IngredientManager {
 
     boolean check = true;
+    final List<String> ingrKeys = new ArrayList<>();
+    final List<String> uomKeys = new ArrayList<>();
+    final ArrayList<IngrAndUom> ingrAndUoms = new ArrayList<>();
 
     public boolean addIngredients(ArrayList<IngrAndUom> ingrAndUomList,DatabaseReference refRecipe)
     {

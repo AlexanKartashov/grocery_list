@@ -5,6 +5,9 @@ public class Uom {
     String uomName;
     String uomKey;
 
+    public Uom() {
+    }
+
     public Uom(String uomName) {
         this.uomName = uomName;
     }

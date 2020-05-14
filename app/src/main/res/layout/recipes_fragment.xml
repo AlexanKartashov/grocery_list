@@ -17,6 +17,7 @@
         android:scaleType="center"
         app:fabCustomSize="64dp"
         app:fabSize="normal"
+        app:layout_scrollFlags="scroll|snap"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:maxImageSize="54dp"

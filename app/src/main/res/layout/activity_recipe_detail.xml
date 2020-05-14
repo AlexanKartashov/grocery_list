@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/activity_recipe_detail"
+    android:background="#F3F3F3"
+    tools:context=".Activities.RecipeDetailActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/recipe_details_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F3F3F3">
+
+        <ImageView
+            android:id="@+id/recipe_detail_img"
+            android:layout_width="0dp"
+            android:layout_height="240dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_launcher_background" />
+
+        <TextView
+            android:id="@+id/recdet_titile"
+            android:textColor="@android:color/black"
+            android:lineSpacingExtra="4dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:layout_weight="1"
+            android:text="Recipe Title"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recipe_detail_img" />
+
+        <Button
+            android:id="@+id/addToSelectedBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/add_to_selected_btn"
+            android:text="Add to selected"
+            android:shadowRadius="2.0"
+            android:shadowColor="@android:color/black"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/recipe_detail_img"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/recdet_authLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="5dp"
+            android:textColor="@android:color/black"
+            android:lineSpacingExtra="4dp"
+            android:text="Author"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recdet_titile" />
+
+        <TextView
+            android:id="@+id/recdet_instrLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:lineSpacingExtra="4dp"
+            android:text="Инструкция"
+            android:textColor="@android:color/black"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recdet_authLabel" />
+
+        <ListView
+            android:id="@+id/recdet_ingrList"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recdet_ingrlabel" />
+
+        <TextView
+            android:id="@+id/recdet_instr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:gravity="left"
+            android:lineSpacingExtra="4dp"
+            android:text="Instruction text"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:maxLines="8"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recdet_instrLabel" />
+
+        <TextView
+            android:id="@+id/recdet_ingrlabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="2dp"
+            android:lineSpacingExtra="4dp"
+            android:text="Ингредиенты"
+            android:textColor="@android:color/black"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/expandInstr" />
+
+        <Button
+            android:id="@+id/expandInstr"
+            android:layout_width="68dp"
+            android:layout_height="31dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/add_to_selected_btn"
+            android:shadowColor="@android:color/black"
+            android:shadowRadius="2.0"
+            android:text="See More"
+            android:textColor="@android:color/white"
+            android:textSize="8sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recdet_instr" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>
