@@ -3,33 +3,22 @@ package com.example.grocerylisting.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.NestedScrollView;
 
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import com.bumptech.glide.Glide;
 import com.example.grocerylisting.Adapters.RecipeDetailIngrListAdapter;
+import com.example.grocerylisting.ModelManagers.SelectedIngredientsDbManager;
 import com.example.grocerylisting.ModelManagers.SelectedRecipeDbManager;
-import com.example.grocerylisting.Models.Ingredient;
-import com.example.grocerylisting.Models.RecipeWithIngr;
-import com.example.grocerylisting.Models.SelectedRecipe;
-import com.example.grocerylisting.Models.Uom;
+import com.example.grocerylisting.Models.*;
 import com.example.grocerylisting.R;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 import java.util.ArrayList;
-
 public class RecipeDetailActivity extends AppCompatActivity {
 
     ImageView imgRecipe;
@@ -38,6 +27,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
     ListView ingrList;
     Button addToSelectedBtn;
     Button expInstr;
+    Button recdet_back;
+    NestedScrollView nest_scrl_view;
 
     RecipeDetailIngrListAdapter ingrListAdapter;
     ArrayList<Ingredient> ingredients;
@@ -45,6 +36,18 @@ public class RecipeDetailActivity extends AppCompatActivity {
     String recipeKey, recipeTitle;
 
     boolean isTextViewClicked = false;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SelectedRecipeDbManager dataBaseManager = new SelectedRecipeDbManager(RecipeDetailActivity.this);
+        if (dataBaseManager.contains(recipeKey)) {
+            addToSelectedBtn.setText("Unselect");
+        }
+        else {
+            addToSelectedBtn.setText("Add to selected");
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,20 +104,55 @@ public class RecipeDetailActivity extends AppCompatActivity {
         addToSelectedBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 SelectedRecipe selectedRecipe;
-
-                try {
-                    selectedRecipe = new SelectedRecipe(recipeKey, recipeTitle);
-                    Toast.makeText(RecipeDetailActivity.this, "Рецепт добавлен для списка покупок", Toast.LENGTH_SHORT).show();
-                }
-                catch (Exception ex) {
-                    Toast.makeText(RecipeDetailActivity.this, "Ошибка добавления рецепты в выбранные", Toast.LENGTH_SHORT).show();
-                    selectedRecipe = new SelectedRecipe("-1", "fail");
-                }
+                selectedRecipe = new SelectedRecipe(recipeKey, recipeTitle);
 
                 SelectedRecipeDbManager dataBaseManager = new SelectedRecipeDbManager(RecipeDetailActivity.this);
-                boolean addSuccess = dataBaseManager.addSelectedRecipe(selectedRecipe);
+                SelectedIngredientsDbManager dbIngredients = new SelectedIngredientsDbManager(RecipeDetailActivity.this);
+
+                if (dataBaseManager.contains(recipeKey)) {
+                    try {
+                        dataBaseManager.unselectRecipe(selectedRecipe);
+                        dbIngredients.deleteAllIngredientsOfRecipe(recipeKey);
+                        Toast.makeText(RecipeDetailActivity.this, "Рецепт удален из списка выбранных", Toast.LENGTH_SHORT).show();
+                        addToSelectedBtn.setText("Add to selected");
+                    }
+                    catch (Exception ex) {
+                        Toast.makeText(RecipeDetailActivity.this, "Ошибка удаления рецепты из выбранных", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+                else {
+
+                    try {
+                        dataBaseManager.addSelectedRecipe(selectedRecipe);
+                        for (Ingredient ingr:
+                             ingredients) {
+                            dbIngredients.addIngredient(new IngrOfRecipe(recipeKey, ingr.getIngrKey(), ingr.getIngrName()));
+                        }
+                        Toast.makeText(RecipeDetailActivity.this, "Рецепт добавлен для списка покупок", Toast.LENGTH_SHORT).show();
+                        addToSelectedBtn.setText("Unselect");
+                    } catch (Exception ex) {
+                        Toast.makeText(RecipeDetailActivity.this, "Ошибка добавления рецепты в выбранные", Toast.LENGTH_SHORT).show();
+                        selectedRecipe = new SelectedRecipe("-1", "fail");
+                        dataBaseManager.addSelectedRecipe(selectedRecipe);
+                    }
+                }
+            }
+        });
+
+        recdet_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+
+        nest_scrl_view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                nest_scrl_view.scrollTo(0,0);
             }
         });
 
@@ -132,6 +170,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         addToSelectedBtn = findViewById(R.id.addToSelectedBtn);
 
         expInstr = findViewById(R.id.expandInstr);
+        recdet_back = findViewById(R.id.recdet_back);
+        nest_scrl_view = (NestedScrollView) findViewById(R.id.activity_recipe_detail);
     }
 
     private void initIngredients() {

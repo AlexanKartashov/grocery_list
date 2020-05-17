@@ -16,6 +16,8 @@ import java.util.List;
 
 public class SelectedRecipeDbManager extends SQLiteOpenHelper {
 
+    public Context context;
+
     public static final String SELECTED_RECIPES_TABLE = "SELECTED_RECIPES_TABLE";
     public static final String RECIPE_KEY = "RECIPE_KEY";
     public static final String RECIPE_NAME = "RECIPE_NAME";
@@ -23,6 +25,7 @@ public class SelectedRecipeDbManager extends SQLiteOpenHelper {
 
     public SelectedRecipeDbManager(@Nullable Context context) {
         super(context, "selectedrecipes.db", null, 1);
+        this.context =  context;
     }
 
     @Override
@@ -77,8 +80,29 @@ public class SelectedRecipeDbManager extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        db.close();
         return returnList;
+    }
+
+    public boolean contains(String searchRecipeKey) {
+        String query = "SELECT * FROM " + SELECTED_RECIPES_TABLE;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String recipeKey = cursor.getString(1);
+                if (recipeKey.equals(searchRecipeKey)) {
+                    cursor.close();
+                    return true;
+                }
+            } while (cursor.moveToNext());
+        }
+        else {
+            Log.println(Log.DEBUG,"DEBUG", "No data in recipes");
+        }
+
+        cursor.close();
+        return false;
     }
 
     public boolean unselectRecipe(SelectedRecipe selectedRecipe) {

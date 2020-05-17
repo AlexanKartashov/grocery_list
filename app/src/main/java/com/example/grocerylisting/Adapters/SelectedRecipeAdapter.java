@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.grocerylisting.ModelManagers.SelectedIngredientsDbManager;
 import com.example.grocerylisting.ModelManagers.SelectedRecipeDbManager;
 import com.example.grocerylisting.Models.SelectedRecipe;
 import com.example.grocerylisting.R;
@@ -22,11 +23,13 @@ public class SelectedRecipeAdapter extends RecyclerView.Adapter<SelectedRecipeAd
     Context context;
     List<SelectedRecipe> data;
     SelectedRecipeDbManager selectedRecipeDbManager;
+    SelectedIngredientsDbManager selectedIngredientsDbManager;
 
     public SelectedRecipeAdapter(Context context, List<SelectedRecipe> data) {
         this.context = context;
         this.data = data;
         this.selectedRecipeDbManager = new SelectedRecipeDbManager(context);
+        this.selectedIngredientsDbManager = new SelectedIngredientsDbManager(context);
     }
 
     @NonNull
@@ -43,6 +46,7 @@ public class SelectedRecipeAdapter extends RecyclerView.Adapter<SelectedRecipeAd
             @Override
             public void onClick(View v) {
                 selectedRecipeDbManager.unselectRecipe(data.get(position));
+                selectedIngredientsDbManager.deleteAllIngredientsOfRecipe(data.get(position).getRecipeKey());
                 data.remove(position);
                 notifyDataSetChanged();
                 Toast.makeText(context, "Рецепт успешно удален из выбранного", Toast.LENGTH_SHORT);
