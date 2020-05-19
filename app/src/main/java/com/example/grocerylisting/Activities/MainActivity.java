@@ -9,11 +9,12 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,6 +47,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -274,19 +277,51 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        IntentResult res = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (res != null) {
+            if (res.getContents() != null) {
 
-        if (resultCode == MainActivity.this.RESULT_OK && requestCode == REQUESCODE && data != null)
-        {
-            pickedImgUri = data.getData();
-            addedRecipeImage.setImageURI(pickedImgUri);
+                // Get EAN13 of product
+                String ean13 = res.getContents();
+                // Get Name of product
+                String addedProductTitle = getTitleByEan();
+                // Add product
+                myProductsDbManager.addProduct(new Product(addedProductTitle));
+                popupAddProduct.dismiss();
+                Toast.makeText(MainActivity.this,"Продукт успешно добавлен", Toast.LENGTH_SHORT).show();
+                adapter.getMyProducts().updateListOfProducts();
+                fabProduct.setVisibility(View.VISIBLE);
+            }
+            else {
+                Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_LONG).show();
+            }
+        }
+        else {
+            super.onActivityResult(requestCode, resultCode, data);
 
+            if (resultCode == 140 && data != null)
+            {
+                String addedProductTitle = data.getStringExtra("prodName");
+                myProductsDbManager = new MyProductsDbManager(MainActivity.this);
+                myProductsDbManager.addProduct(new Product(addedProductTitle));
+                popupAddProduct.dismiss();
+                Toast.makeText(MainActivity.this,"Продукт успешно добавлен", Toast.LENGTH_SHORT).show();
+                adapter.getMyProducts().updateListOfProducts();
+                fabProduct.setVisibility(View.VISIBLE);
+            }
+            else if (resultCode == MainActivity.this.RESULT_OK && requestCode == REQUESCODE && data != null)
+            {
+                pickedImgUri = data.getData();
+                addedRecipeImage.setImageURI(pickedImgUri);
+            }
         }
     }
 
+    private String getTitleByEan() {
+        return "empty";
+    }
 
     private void checkImagePermission() {
 
@@ -314,8 +349,6 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(galleryIntent,REQUESCODE);
     }
 
-
-
     // Add Product dialog
 
     private void initiateAddProductPopup() {
@@ -326,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
 
         addByView = popupAddProduct.findViewById(R.id.add_product_view_btn);
         addByText = popupAddProduct.findViewById(R.id.add_product_text_btn);
-        addByBarcode = popupAddProduct.findViewById(R.id.add_product_text_btn);
+        addByBarcode = popupAddProduct.findViewById(R.id.add_product_barcode_btn);
         addManually = popupAddProduct.findViewById(R.id.add_product_manually_btn);
         closeAddProduct = popupAddProduct.findViewById(R.id.close_popup_product);
 
@@ -341,7 +374,8 @@ public class MainActivity extends AppCompatActivity {
         addByView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent detector = new Intent(MainActivity.this, DetectorActivity.class);
+                startActivityForResult(detector, 176);
             }
         });
 
@@ -355,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
         addByBarcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                scanEanCode();
             }
         });
 
@@ -407,6 +441,15 @@ public class MainActivity extends AppCompatActivity {
                 fabProduct.setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    public void scanEanCode() {
+        IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
+        intentIntegrator.setCaptureActivity(CaptureBarcodeActivity.class);
+        intentIntegrator.setOrientationLocked(true);
+        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.EAN_13);
+        intentIntegrator.setPrompt("Сканирование штрих-кода");
+        intentIntegrator.initiateScan();
     }
 
 }
