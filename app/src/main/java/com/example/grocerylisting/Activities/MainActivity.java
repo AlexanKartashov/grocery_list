@@ -30,11 +30,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.grocerylisting.Adapters.BarcodeItemsAdapter;
 import com.example.grocerylisting.Adapters.EditIngrListAdapter;
 import com.example.grocerylisting.CommonMethods.Common;
+import com.example.grocerylisting.ModelManagers.EanDbManager;
 import com.example.grocerylisting.ModelManagers.IngredientManager;
 import com.example.grocerylisting.ModelManagers.MyProductsDbManager;
 import com.example.grocerylisting.ModelManagers.RecipeManager;
+import com.example.grocerylisting.Models.CheckboxName;
 import com.example.grocerylisting.Models.Product;
 import com.example.grocerylisting.Models.Recipe;
 import com.example.grocerylisting.R;
@@ -49,6 +52,10 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,6 +92,14 @@ public class MainActivity extends AppCompatActivity {
     EditText inptManualProduct;
 
     MyProductsDbManager myProductsDbManager;
+    EanDbManager eanDbManager;
+
+    Dialog popupAddProductBarcode;
+    Button acceptBrName,closeAddBarcodeProduct;
+    ListView barItemList;
+    BarcodeItemsAdapter barcodeItemsAdapter;
+    List<CheckboxName> itemNameComp;
+    public String addedProductTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         setClickOnAddBtn();
         initiateAddProductPopup();
         initiateAddProductManually();
+        initiateAddProductBarcode();
 
         fabRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -282,17 +298,28 @@ public class MainActivity extends AppCompatActivity {
         IntentResult res = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (res != null) {
             if (res.getContents() != null) {
-
                 // Get EAN13 of product
                 String ean13 = res.getContents();
                 // Get Name of product
-                String addedProductTitle = getTitleByEan();
-                // Add product
-                myProductsDbManager.addProduct(new Product(addedProductTitle));
-                popupAddProduct.dismiss();
-                Toast.makeText(MainActivity.this,"Продукт успешно добавлен", Toast.LENGTH_SHORT).show();
-                adapter.getMyProducts().updateListOfProducts();
-                fabProduct.setVisibility(View.VISIBLE);
+                eanDbManager = new EanDbManager(MainActivity.this);
+                addedProductTitle = eanDbManager.getTitleByEan(ean13);
+                List<String> itemNameBr = Arrays.asList(addedProductTitle.split(" "));
+                if (itemNameBr.size()>1) {
+                    barcodeItemsAdapter.clear();
+                    int maxLen = itemNameBr.size()>6? 6 : itemNameBr.size();
+                    for (int o=0;o<maxLen;o++) {
+                        barcodeItemsAdapter.addName(toCamelCase(itemNameBr.get(o)), false);
+                    }
+                    popupAddProductBarcode.show();
+                }
+                else {
+                    myProductsDbManager = new MyProductsDbManager(MainActivity.this);
+                    myProductsDbManager.addProduct(new Product(addedProductTitle));
+                    popupAddProduct.dismiss();
+                    Toast.makeText(MainActivity.this,"Продукт успешно добавлен", Toast.LENGTH_SHORT).show();
+                    adapter.getMyProducts().updateListOfProducts();
+                    fabProduct.setVisibility(View.VISIBLE);
+                }
             }
             else {
                 Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_LONG).show();
@@ -311,12 +338,41 @@ public class MainActivity extends AppCompatActivity {
                 adapter.getMyProducts().updateListOfProducts();
                 fabProduct.setVisibility(View.VISIBLE);
             }
+            else if (resultCode == 130 && data != null)
+            {
+                String addedProductTitle = data.getStringExtra("prodName");
+                List<String> itemNameBr = Arrays.asList(addedProductTitle.split(" "));
+                if (itemNameBr.size()>1) {
+                    barcodeItemsAdapter.clear();
+                    int maxLen = itemNameBr.size()>6? 6 : itemNameBr.size();
+                    for (int o=0;o<maxLen;o++) {
+                        barcodeItemsAdapter.addName(toCamelCase(itemNameBr.get(o)), false);
+                    }
+                    popupAddProductBarcode.show();
+                }
+                else {
+                    myProductsDbManager = new MyProductsDbManager(MainActivity.this);
+                    myProductsDbManager.addProduct(new Product(addedProductTitle));
+                    popupAddProduct.dismiss();
+                    Toast.makeText(MainActivity.this,"Продукт успешно добавлен", Toast.LENGTH_SHORT).show();
+                    adapter.getMyProducts().updateListOfProducts();
+                    fabProduct.setVisibility(View.VISIBLE);
+                }
+            }
             else if (resultCode == MainActivity.this.RESULT_OK && requestCode == REQUESCODE && data != null)
             {
                 pickedImgUri = data.getData();
                 addedRecipeImage.setImageURI(pickedImgUri);
             }
         }
+    }
+
+    private String toCamelCase(String text) {
+        StringBuilder sb = new StringBuilder();
+        text = text.toLowerCase();
+        sb.append( text.substring(0,1).toUpperCase() );
+        sb.append( text.substring(1) );
+        return sb.toString();
     }
 
     private String getTitleByEan() {
@@ -382,7 +438,8 @@ public class MainActivity extends AppCompatActivity {
         addByText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent detector = new Intent(MainActivity.this, TextRecognitionActivity.class);
+                startActivityForResult(detector, 156);
             }
         });
 
@@ -443,10 +500,47 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private  void initiateAddProductBarcode() {
+
+        popupAddProductBarcode = new Dialog(MainActivity.this);
+        popupAddProductBarcode.setContentView(R.layout.popup_add_product_barcode);
+        popupAddProductBarcode.getWindow().getAttributes().gravity = Gravity.CENTER;
+
+        acceptBrName = popupAddProductBarcode.findViewById(R.id.accepy_barcode_btn);
+        closeAddBarcodeProduct = popupAddProductBarcode.findViewById(R.id.close_popup_barcode);
+        barItemList = popupAddProductBarcode.findViewById(R.id.list_barcode_names);
+        itemNameComp = new ArrayList<CheckboxName>();
+        barcodeItemsAdapter = new BarcodeItemsAdapter(MainActivity.this,itemNameComp);
+        barItemList.setAdapter(barcodeItemsAdapter);
+
+        acceptBrName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addedProductTitle = barcodeItemsAdapter.getFinalItemName();
+                myProductsDbManager = new MyProductsDbManager(MainActivity.this);
+                myProductsDbManager.addProduct(new Product(addedProductTitle));
+                popupAddProductBarcode.dismiss();
+                popupAddProduct.dismiss();
+                Toast.makeText(MainActivity.this,"Продукт успешно добавлен", Toast.LENGTH_SHORT).show();
+                adapter.getMyProducts().updateListOfProducts();
+                fabProduct.setVisibility(View.VISIBLE);
+            }
+        });
+
+        closeAddManuallyProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupAddProductBarcode.dismiss();
+                fabProduct.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
     public void scanEanCode() {
         IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
         intentIntegrator.setCaptureActivity(CaptureBarcodeActivity.class);
         intentIntegrator.setOrientationLocked(true);
+        intentIntegrator.setBeepEnabled(false);
         intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.EAN_13);
         intentIntegrator.setPrompt("Сканирование штрих-кода");
         intentIntegrator.initiateScan();

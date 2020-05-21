@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="250dp">
+    android:layout_height="220dp">
 
     <ImageView
         android:id="@+id/recipeImageInList"
@@ -42,29 +42,35 @@
         android:shadowDx="1.5"
         android:shadowDy="1.3"
         android:shadowRadius="10.6"
+        android:gravity="bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/recipeTitleInList"
-        android:layout_width="359dp"
-        android:layout_height="80dp"
+        android:layout_width="0dp"
+        android:layout_height="95sp"
         android:layout_marginStart="16dp"
-        android:autoSizeMaxTextSize="30sp"
+        android:layout_marginEnd="10dp"
+        android:autoSizeMaxTextSize="24sp"
         android:autoSizeMinTextSize="12sp"
-        android:autoSizeStepGranularity="2sp"
         android:autoSizeTextType="uniform"
         android:gravity="bottom|left"
+        android:maxLines="3"
+        android:paddingRight="4sp"
+        android:paddingBottom="2sp"
         android:shadowColor="#000000"
         android:shadowDx="1.5"
         android:shadowDy="1.3"
         android:shadowRadius="10.6"
-        android:text="Recipe Title"
+        android:text="Английский луковый суп с шалфеем и сыром Чеддер"
         android:textAllCaps="true"
         android:textColor="#ffffff"
-        android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/authorInList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +23,7 @@ import com.example.grocerylisting.Models.Product;
 import com.example.grocerylisting.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FragmentShoppingList extends Fragment {
@@ -68,6 +70,20 @@ public class FragmentShoppingList extends Fragment {
             manageShoppingListBtn.setImageResource(R.drawable.generate_list);
         }
 
+        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder target, int direction) {
+                int position = target.getAdapterPosition();
+                productList.remove(position);
+                shoppingListAdapter.notifyDataSetChanged();
+            }
+        });
+        helper.attachToRecyclerView(recyclerView);
 
         manageShoppingListBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,6 +105,7 @@ public class FragmentShoppingList extends Fragment {
                             shoppingListDbManager.addProduct(pr);
                         }
                     }
+                    Collections.reverse(productList);
                     shoppingListAdapter.notifyDataSetChanged();
                     manageShoppingListBtn.setImageResource(R.drawable.clear_list);
                     shopListGenerated = true;
